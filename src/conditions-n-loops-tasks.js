@@ -485,29 +485,33 @@ function sortByAsc(arr) {
  *  'qwerty', 3 => 'qetwry' => 'qtrewy' => 'qrwtey'
  */
 function shuffleChar(str, iterations) {
-  console.log('str:', str, 'iterations', iterations);
-  let result = str;
-  let counter = iterations;
+  let count = 1;
+  let currString = str;
+  const iterationObj = {};
 
-  while (counter > 0) {
-    let odds = '';
-    let evens = '';
+  while (count <= iterations) {
+    let start = '';
+    let tail = '';
 
-    for (let j = 0; j < result.length; j += 2) {
-      console.log('result', result[j]);
-      odds += result[j];
+    for (let i = 1; i < currString.length; i += 1) {
+      if (i % 2 === 0) {
+        start += currString[i];
+      } else {
+        tail += currString[i];
+      }
     }
 
-    for (let k = 1; k < result.length; k += 2) {
-      evens += result[k];
+    currString = currString[0] + start + tail;
+    iterationObj[count] = currString;
+
+    if (currString === str) {
+      const iteration = iterations % count;
+      return iterationObj[iteration];
     }
 
-    result = evens + odds;
-    counter -= 1;
-    if (result === str) counter = iterations % (iterations - counter);
+    count += 1;
   }
-
-  return result;
+  return currString;
 }
 
 /**
@@ -527,8 +531,56 @@ function shuffleChar(str, iterations) {
  * @param {number} number The source number
  * @returns {number} The nearest larger number, or original number if none exists.
  */
-function getNearestBigger(/* number */) {
-  throw new Error('Not implemented');
+function getNearestBigger(number) {
+  let nums = [];
+  let numCopy = number;
+
+  while (numCopy > 0) {
+    nums.push(numCopy % 10);
+    numCopy = Math.floor(numCopy / 10);
+  }
+
+  nums = nums.reverse();
+
+  for (let i = nums.length - 1; i > 0; i -= 1) {
+    if (nums[i - 1] < nums[i]) {
+      [nums[i - 1], nums[i]] = [nums[i], nums[i - 1]];
+
+      let left = i - 1;
+      let right = nums.length - 1;
+
+      while (left < right) {
+        if (nums[left] > nums[right] && nums[right] > nums[left + 1]) {
+          [nums[left], nums[right]] = [nums[right], nums[left]];
+
+          left = 0;
+          right = 0;
+        }
+
+        right -= 1;
+      }
+
+      for (let k = i; k < nums.length - 1; k += 1) {
+        for (let j = k + 1; j < nums.length; j += 1) {
+          if (nums[k] > nums[j]) {
+            [nums[j], nums[k]] = [nums[k], nums[j]];
+          }
+        }
+      }
+
+      let result = nums[nums.length - 1];
+      let multiplier = 10;
+
+      for (let r = nums.length - 2; r >= 0; r -= 1) {
+        result += nums[r] * multiplier;
+        multiplier *= 10;
+      }
+
+      return result;
+    }
+  }
+
+  return number;
 }
 
 module.exports = {
